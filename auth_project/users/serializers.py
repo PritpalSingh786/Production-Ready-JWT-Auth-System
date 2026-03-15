@@ -94,6 +94,20 @@ class LoginSerializer(serializers.Serializer):
         user = self.validated_data["user"]
         refresh = RefreshToken.for_user(user)
 
+        # Custom payload in refresh
+        # refresh["userId"] = user.id
+        # refresh["username"] = user.username
+        # refresh["email"] = user.email
+        # refresh["platform"] = self.validated_data["platform"]
+
+        access = refresh.access_token
+
+        # Custom payload in access
+        access["userId"] = user.id
+        access["username"] = user.username
+        access["email"] = user.email
+        access["platform"] = self.validated_data["platform"]
+
         Device.objects.update_or_create(
             user=user,
             device_name=request.headers.get("User-Agent"),
@@ -101,7 +115,7 @@ class LoginSerializer(serializers.Serializer):
         )
 
         return {
-            "access": str(refresh.access_token),
+            "access": str(access),
             "refresh": str(refresh),
             "platform": self.validated_data["platform"]
         }
