@@ -31,6 +31,7 @@ Step	Action
 
 web: gunicorn rentNotify.wsgi
 worker: celery -A auth_project worker --loglevel=info
+beat:  celery -A auth_project beat -l info
 
 
 Sure 😎, short version in English:

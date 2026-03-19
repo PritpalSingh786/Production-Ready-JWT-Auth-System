@@ -9,6 +9,7 @@ from .models import Device
 from .tasks import send_email_task
 import datetime
 import re
+from .utils import limit_user_sessions
 
 User = get_user_model()
 token_generator = PasswordResetTokenGenerator()
@@ -92,7 +93,10 @@ class LoginSerializer(serializers.Serializer):
 
     def save(self, request):
         user = self.validated_data["user"]
+        # 🔥 Step 1: new token create
         refresh = RefreshToken.for_user(user)
+        # 🔥 Step 2: session limit apply (IMPORTANT)
+        limit_user_sessions(user, max_sessions=5)
 
         # Custom payload in refresh
         # refresh["userId"] = user.id

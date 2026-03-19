@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+from celery.schedules import crontab
+
 
 load_dotenv()
 
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
+    "django_celery_beat",
     "corsheaders",
     # "channels",
     "users",
@@ -102,6 +105,18 @@ CELERY_TASK_SERIALIZER = "json"
 
 CELERY_TASK_TIME_LIMIT = 30
 CELERY_TASK_SOFT_TIME_LIMIT = 25
+
+
+CELERY_BEAT_SCHEDULE = {
+    "clean-expired-tokens-every-hour": {
+        "task": "users.tasks.clean_expired_tokens",
+        "schedule": crontab(minute=0, hour="*/1"),  # har 1 ghante
+    },
+}
+
+CELERY_TIMEZONE = "Asia/Kolkata"
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CORS_EXPOSE_HEADERS = ["Authorization"]
 CORS_ALLOW_CREDENTIALS = True
