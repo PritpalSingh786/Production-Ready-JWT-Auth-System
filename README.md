@@ -1,5 +1,3 @@
-Perfect bhai, ab main teri **poori updated README** likh deta hoon jo **current system ke saare features** (JWT, refresh token rotation, multi-device sessions, oldest session auto logout, Celery cleanup, send_session_killed_email) ko cover kare.
-
 ---
 
 # Production Ready JWT Auth System
