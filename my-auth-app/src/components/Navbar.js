@@ -11,17 +11,24 @@ const Navbar = () => {
         try {
             await API.post('logout/', { platform: 'web' });
             dispatch(logout());
-        } catch (e) { dispatch(logout()); }
+        } catch (e) { 
+            dispatch(logout()); 
+        }
     };
 
     return (
         <nav className="navbar">
             <Link to="/" style={{color:'white', textDecoration:'none'}}>AuthApp</Link>
+
             <div className="nav-links">
                 {isAuthenticated ? (
                     <>
                         <Link to="/dashboard">Dashboard</Link>
-                        <a onClick={handleLogout}>Logout</a>
+
+                        {/* 🔥 FIXED */}
+                        <button onClick={handleLogout} className="logout-btn">
+                            Logout
+                        </button>
                     </>
                 ) : (
                     <>
@@ -33,4 +40,5 @@ const Navbar = () => {
         </nav>
     );
 };
+
 export default Navbar;

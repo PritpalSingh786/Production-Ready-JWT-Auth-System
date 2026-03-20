@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "django_celery_beat",
     "corsheaders",
-    # "channels",
+    "channels",
     "users",
 ]
 
@@ -66,8 +66,6 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [os.getenv("FRONTEND_URL")]
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
-
-print(CORS_ALLOWED_ORIGINS, "coooooooo")
 
 
 AUTH_USER_MODEL = "users.User"
@@ -139,17 +137,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'auth_project.wsgi.application'
-# ASGI_APPLICATION = "auth_project.asgi.application"
+ASGI_APPLICATION = "auth_project.asgi.application"
 
 # Redis Channel Layer
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")],
-#         },
-#     },
-# }
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")],
+        },
+    },
+}
 
 
 
