@@ -1,38 +1,32 @@
 ---
 
-# Production Ready JWT Auth System
+# Production Ready JWT Auth System 🚀
 
-A **production-ready full-stack authentication system** built using **React and Django REST Framework**, implementing **secure JWT authentication with session management, refresh token rotation, token blacklisting, and email notifications for session security**.
+A **production-ready full-stack authentication system** built using **React and Django REST Framework**, implementing **secure JWT authentication with real-time session management, refresh token rotation, token blacklisting, and WebSocket-based auto logout**.
 
-This project demonstrates how to implement a **modern authentication workflow used in real production applications**, including **user registration, login, email verification, password reset, multi-device session management, and secure token handling**.
-
-It can be used as a **starter template for full-stack applications requiring robust security**.
+This project demonstrates a **modern, scalable authentication workflow used in real-world production systems**, including **multi-device session control, real-time session invalidation, and secure token lifecycle management**.
 
 ---
 
-# Project Overview
+# 🔥 Project Overview
 
-This project provides a **complete authentication solution** with frontend and backend integration.
+This system provides a **complete and secure authentication solution** with both frontend and backend integration.
 
-The system uses:
+It includes:
 
-* **JWT Access Tokens** for protected API requests
-* **Refresh Tokens** for maintaining sessions
-* **Refresh Token Rotation** for enhanced security
-* **Token Blacklisting** on logout
-* **Session Limit Enforcement** (max 5 devices per user)
-* **Oldest Session Auto-Logout** when limit exceeds
-* **Email Notification for Killed Sessions**
-* **Email Verification** for account activation
-* **Password Reset Flow**
-
-The goal is to demonstrate **secure authentication architecture commonly used in production systems** with high concurrency and multi-device support.
+* JWT-based authentication (Access + Refresh tokens)
+* Refresh token rotation
+* Token blacklisting
+* Multi-device session management
+* **Real-time auto logout using WebSockets**
+* Email notifications for session activity
+* Background cleanup using Celery Beat
 
 ---
 
-# Key Features
+# ⚡ Key Features
 
-## Authentication
+## 🔐 Authentication
 
 * User Registration
 * User Login
@@ -40,242 +34,211 @@ The goal is to demonstrate **secure authentication architecture commonly used in
 * Email Verification
 * Password Reset via Email
 
-## Security Features
-
-* JWT Authentication (Access + Refresh Token)
-* Refresh Token Rotation
-* Token Blacklisting on Logout
-* Short-lived Access Tokens
-* Protected API Routes
-* Session Limit per User (max 5 active sessions)
-* Oldest Session Auto-Logout (when limit exceeds)
-* **Email Notification for Killed Sessions**
-* Celery Beat based background cleanup for expired tokens and sessions
-* Secure Password Reset Flow
-* Email verification before login
-
-## Frontend Features
-
-* React-based UI
-* Redux Toolkit for state management
-* Protected routes
-* Authentication state persistence
-* API integration with Axios
-
-## Backend Features
-
-* Django REST Framework APIs
-* Secure JWT implementation
-* Custom authentication workflow with session management
-* Email verification system
-* Password reset functionality
-* **send_session_killed_email** for notifying users when their session is terminated
-* Celery Beat scheduled tasks for cleanup and enforcement
-
 ---
 
-# Tech Stack
+## 🛡️ Security Features
 
-## Backend
-
-* Django
-* Django REST Framework
-* Simple JWT
-* Celery + Celery Beat for async tasks
-* Python
-
-## Frontend
-
-* React
-* Redux Toolkit
-* React Router
-* Axios
-
-## Security
-
-* JWT Access Tokens
-* Refresh Tokens
+* JWT Authentication (Access + Refresh Tokens)
+* Short-lived Access Tokens
 * Refresh Token Rotation
 * Token Blacklisting
-* Multi-device Session Management
-* Email Notifications for session security
+* Protected API Routes
+* Email Verification before login
+* Secure Password Reset Flow
 
 ---
 
-# System Architecture
+## 📡 Advanced Session Management (NEW 🔥)
+
+* Maximum **5 active sessions per user**
+* **Oldest session auto-logout** when limit exceeds
+* **Real-time session termination using WebSockets**
+* **Device-level session targeting (via device_id)**
+* **Redis-based channel layer for scalability**
+* **Instant logout across devices (no API call required)**
+
+---
+
+## 📧 Email & Background Jobs
+
+* Email notification on session termination
+* Celery for async email handling
+* Celery Beat for:
+
+  * Expired token cleanup
+  * Session cleanup
+
+---
+
+## 🎨 Frontend Features
+
+* React-based UI
+* Redux Toolkit state management
+* Protected routes
+* Axios interceptors for token refresh
+* **Auto logout handling (WebSocket + fallback)**
+* Token expiry detection
+
+---
+
+## ⚙️ Backend Features
+
+* Django REST Framework APIs
+* Simple JWT integration
+* Custom session management logic
+* WebSocket support using Django Channels
+* Redis-based real-time communication
+* Secure authentication workflows
+
+---
+
+# 🧠 System Architecture
 
 ```
 React Frontend
       │
-      │ HTTP Requests
+      │ HTTP + WebSocket
       ▼
-Django REST API
+Django REST API + Channels
       │
       │ JWT + Session Management
       ▼
-Database (User & Session Data)
+Database (User + Device + Tokens)
       │
-      │ Celery Beat
+      │ Redis (Channel Layer)
       ▼
-Background Token & Session Cleanup + Emails
+Real-time Session Events
+      │
+      ▼
+Celery + Celery Beat
+      │
+      ▼
+Background Jobs + Emails
 ```
-
-The frontend communicates with the backend through REST APIs. Authentication is handled using **JWT tokens issued by the backend**, with **session enforcement, background cleanup, and email notifications**.
 
 ---
 
-# Authentication & Session Flow
+# 🔄 Authentication & Session Flow
 
 ```
-User Register
-      │
-      ▼
-Email Verification
-      │
-      ▼
 User Login
       │
       ▼
-Access Token + Refresh Token Issued
+JWT Issued (Access + Refresh + device_id)
       │
       ▼
-Check User Session Limit
-      │
-      ├─ If <= 5 sessions → allow
-      │
-      └─ If > 5 sessions → logout oldest session
-           │
-           ▼
-      send_session_killed_email(user_email, session_info)
+WebSocket Connection Established
       │
       ▼
-Protected API Access
+Session Limit Check (max 5)
       │
-      ▼
-Access Token Expired
+      ├─ If ≤ 5 → allow
       │
-      ▼
-Refresh Token Sent
-      │
-      ▼
-New Access Token Generated
-      │
-      ▼
-Refresh Token Rotated
-      │
-      ▼
-Old Refresh Token Invalid
+      └─ If > 5 → kill oldest session
+              │
+              ▼
+   🔥 WebSocket Event Sent (SESSION_KILLED)
+              │
+              ▼
+   Frontend receives → Auto Logout
+              │
+              ▼
+   Email Notification Sent
 ```
 
 ---
 
-# JWT Security Implementation
+# 🔐 JWT Security Implementation
 
 ## Access Token
 
 * Short-lived
-* Used for accessing protected APIs
+* Used for API authentication
 
 ## Refresh Token
 
 * Used to generate new access tokens
-* Allows users to remain logged in without re-authentication
-* Rotated on each use to prevent token replay attacks
+* Stored securely (HttpOnly cookie for web)
 
 ---
 
-## Refresh Token Rotation
+## 🔁 Refresh Token Rotation
 
-Each time a refresh token is used:
+Each refresh request:
 
-1. A new access token is generated
-2. A new refresh token is issued
-3. The previous refresh token becomes invalid
+1. New access token issued
+2. New refresh token generated
+3. Old refresh token invalidated
 
-This prevents **token replay attacks** and enhances security for multi-device logins.
-
----
-
-## Token Blacklisting
-
-When a user logs out:
-
-* The refresh token is **added to the blacklist**
-* Any request using this token is rejected
-* Prevents **session hijacking or token reuse**
+👉 Prevents **token replay attacks**
 
 ---
 
-## Session Management & Security Emails
+## 🚫 Token Blacklisting
 
-* Maximum **5 active sessions per user**
-* On exceeding limit → **oldest session auto-logout**
-* **Email Notification:**
-
-  * User receives an email when a session is terminated due to **session limit exceeded**
-  * Function: `send_session_killed_email(user_email, session_info)`
-  * Ensures **user awareness of unexpected logins**
-* **Celery Beat** handles background cleanup of expired sessions and tokens
+* On logout → refresh token is blacklisted
+* Prevents reuse of stolen tokens
 
 ---
 
-# Project Structure
+# ⚡ Real-Time Auto Logout (NEW 🔥)
+
+* Implemented using **WebSockets + Redis**
+* Each device has a unique **device_id**
+* When session limit exceeds:
+
+  * Old session identified
+  * WebSocket event sent to that device
+  * User logged out instantly
+
+👉 No polling, no delay — **instant logout**
+
+---
+
+# 📁 Project Structure
 
 ```
-Production-Ready-JWT-Auth-System
-
-backend
- ├── auth_app
+backend/
+ ├── users/
  │   ├── models.py
- │   ├── views.py
  │   ├── serializers.py
- │   ├── urls.py
+ │   ├── views.py
+ │   ├── consumers.py   🔥 (WebSocket)
+ │   ├── middleware.py  🔥 (JWT Auth)
  │
- ├── project
+ ├── project/
  │   ├── settings.py
- │   ├── urls.py
+ │   ├── asgi.py        🔥 (Channels)
  │
- └── manage.py
-
-frontend
- ├── src
- │   ├── components
- │   ├── pages
- │   ├── redux
- │   ├── services
+frontend/
+ ├── src/
+ │   ├── components/
+ │   ├── pages/
+ │   ├── features/
+ │   ├── api/
+ │   ├── socket/        🔥 (WebSocket client)
+ │   ├── utils/
  │   └── App.js
 ```
 
 ---
 
-# Installation Guide
+# ⚙️ Installation Guide
 
-## 1. Clone Repository
-
-```
-git clone https://github.com/PritpalSingh786/Production-Ready-JWT-Auth-System.git
-cd Production-Ready-JWT-Auth-System
-```
-
----
-
-## 2. Backend Setup (Django)
+## Backend
 
 ```
 cd backend
 python -m venv venv
-source venv/bin/activate    # Linux/Mac
-venv\Scripts\activate       # Windows
+source venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
 
-Backend runs at: `http://127.0.0.1:8000`
-
 ---
 
-## 3. Frontend Setup (React)
+## Frontend
 
 ```
 cd frontend
@@ -283,58 +246,62 @@ npm install
 npm start
 ```
 
-Frontend runs at: `http://localhost:3000`
+---
+
+## Redis (Required for WebSocket)
+
+```
+sudo service redis start
+```
 
 ---
 
-# API Endpoints
+# 🔌 API Endpoints
 
-| Method | Endpoint                    | Description            |
-| ------ | --------------------------- | ---------------------- |
-| POST   | /api/register               | Register new user      |
-| POST   | /api/login                  | Login user             |
-| POST   | /api/logout                 | Logout user            |
-| GET    | /api/authenticated          | Get authenticated user |
-| POST   | /api/verify-email           | Verify email           |
-| POST   | /api/request-password-reset | Request password reset |
-| POST   | /api/reset-password         | Set new password       |
-
----
-
-# Example Use Cases
-
-* Authentication system for SaaS products
-* Secure login system for web applications
-* Multi-device login with session enforcement
-* Learning JWT authentication with rotation and blacklisting
-* Full-stack React + Django integration
+| Method | Endpoint                    | Description        |
+| ------ | --------------------------- | ------------------ |
+| POST   | /api/register               | Register user      |
+| POST   | /api/login                  | Login              |
+| POST   | /api/logout                 | Logout             |
+| POST   | /api/token/refresh          | Refresh token      |
+| POST   | /api/verify-email           | Email verification |
+| POST   | /api/request-password-reset | Request reset      |
+| POST   | /api/reset-password         | Reset password     |
 
 ---
 
-# Future Improvements
+# 🎯 Use Cases
 
-* OAuth Login (Google / GitHub)
-* Role-Based Access Control
-* Docker support
-* Redis-based token blacklist
-* Rate limiting and API throttling
-
----
-
-# What This Project Demonstrates
-
-* Secure JWT authentication system
-* Refresh token rotation implementation
-* Token blacklisting strategy
-* Multi-device session management with oldest session auto-logout
-* **Email notification on killed sessions**
-* Celery Beat based background cleanup
-* React + Django full stack integration
-* Production authentication workflow
+* SaaS authentication systems
+* Multi-device login apps
+* Secure enterprise login systems
+* Learning JWT + WebSockets + Redis
 
 ---
 
-# Author
+# 🚀 Future Improvements
+
+* OAuth (Google / GitHub)
+* Role-based access control (RBAC)
+* Docker deployment
+* Admin session control panel
+* Active devices UI (like Gmail)
+
+---
+
+# 🧠 What This Project Demonstrates
+
+* Secure JWT authentication architecture
+* Refresh token rotation
+* Token blacklisting
+* Multi-device session management
+* **Real-time session invalidation (WebSocket + Redis)**
+* Scalable backend architecture
+* Full-stack integration (React + Django)
+
+---
+
+# 👨‍💻 Author
 
 **Pritpal Singh**
 
