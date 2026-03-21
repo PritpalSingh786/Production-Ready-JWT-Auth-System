@@ -84,7 +84,10 @@ SIMPLE_JWT = {
     # Optional but recommended
     "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
-    "SIGNING_KEY": SECRET_KEY
+    "SIGNING_KEY": SECRET_KEY,
+    "ALGORITHM": os.getenv("ALGORITHM"),
+    "ISSUER": "my-app",
+    "AUDIENCE": "my-users",
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
