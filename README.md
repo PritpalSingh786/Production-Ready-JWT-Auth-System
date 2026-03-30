@@ -179,6 +179,8 @@ Prevents token replay attacks
 
 ---
 
+When using token rotation and blacklisting, JWT is no longer purely stateless because the server maintains token state (e.g., in a database or cache). This becomes a hybrid approach combining stateless access tokens with stateful refresh token management.
+
 # 🔐 Advanced JWT Security Practices
 
 ## 🚫 No Sensitive Data (PII) in Tokens
